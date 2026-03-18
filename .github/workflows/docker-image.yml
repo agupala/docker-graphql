@@ -36,7 +36,7 @@ jobs:
       - name: Push Docker image
         run: |
           echo "Push Image"
-          docker push agughst/docker-graphql:0.0.2 .
+          docker push agughost/docker-graphql:0.0.2 .
          
 
 
