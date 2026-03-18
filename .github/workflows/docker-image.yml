@@ -9,7 +9,6 @@ on:
 jobs:
 
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -24,30 +23,30 @@ jobs:
         major_pattern: "major:"
         minor_pattern: "feat:"
         format: "${major}.${minor}.${patch}-prerelease${increment}"
+        short_tags: false
+        bump_each_commit: true  # Esto garantiza que el número de versión siempre suba
       id: version
     
     - name: Docker Login
-      env:
-        DOCKER_USER: ${{ secrets.DOCKER_USER }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
         
-      run: |
-        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-        
-    - name: Build Docker Image
+    - name: Build and Push Docker Image
       env:
         NEW_VERSION: ${{ steps.version.outputs.version }}
       run: |
-        docker build -t klerith/docker-graphql:$NEW_VERSION .
-        docker build -t klerith/docker-graphql:latest .
+        # Definimos el nombre de la imagen usando tu secreto de usuario
+        # y el nombre del repositorio "docker-graphql"
+        IMAGE_NAME="${{ secrets.DOCKER_USER }}/docker-graphql"
+
+        echo "Haciendo build de la versión: $NEW_VERSION"
+
+        # Construimos la imagen con dos etiquetas (tags)
+        docker build -t $IMAGE_NAME:$NEW_VERSION .
+        docker build -t $IMAGE_NAME:latest .
         
-    - name: Push Docker Image
-      env:
-        NEW_VERSION: ${{ steps.version.outputs.version }}
-      run: |
-        docker push agughost/docker-graphql:$NEW_VERSION
-        docker push agughost/docker-graphql:latest
-    
-    
-#     - name: Build the Docker image
-#       run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+        # Subimos ambas etiquetas a Docker Hub
+        docker push $IMAGE_NAME:$NEW_VERSION
+        docker push $IMAGE_NAME:latest
