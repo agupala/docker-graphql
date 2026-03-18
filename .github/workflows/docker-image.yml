@@ -45,8 +45,8 @@ jobs:
       env:
         NEW_VERSION: ${{ steps.version.outputs.version }}
       run: |
-        docker push klerith/docker-graphql:$NEW_VERSION
-        docker push klerith/docker-graphql:latest
+        docker push agughost/docker-graphql:$NEW_VERSION
+        docker push agughost/docker-graphql:latest
     
     
 #     - name: Build the Docker image
